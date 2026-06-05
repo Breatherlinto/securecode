@@ -1,3 +1,5 @@
+bits 64                 
+
 section .data           ; section for data declaration 
         bin:    db "/bin/sh",0          ;
         arg0:   db "/bin/sh",0

@@ -3,7 +3,7 @@ Assembly & C Code Comparison
 
 ## Overview
 This directory contains:
-Code/c a.c is written by the Professor an should be rewritten in Assembly.
+The Original C code is not in the directory
 Code/x64_assembly
 execve.asm is the C code written in Assembly by myself.
 gcc.asm is the C code using `gcc -S` to demonstrate how GCC translates C into assembly on Windows.

